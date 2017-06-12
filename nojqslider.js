@@ -26,11 +26,13 @@ NoJQSlider.prototype = {
 		}
 	},
 	makeThemResponsive : function(){
+		console.log("makethemresponsive");
 			this.sliderDom.imageContainer.style.fontSize = "0";
 			for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++) {
 				this.sliderDom.imageContainer.children[i].children[0].style.width = "100%";
 				this.sliderDom.imageContainer.children[i].children[0].style.height = "auto";
 				this.sliderDom.imageContainer.children[i].style.display = "inline-block";
+				this.sliderDom.imageContainer.children[i].style.verticalAlign = "top";
 				this.sliderDom.imageContainer.children[i].style.width = this.sliderDom.imageContainer.children[i].children[0].clientWidth + "px";
 			}
 			this.sliderDom.imageContainer.style.width = this.sliderDom.imageContainer.children[0].clientWidth * this.sliderDom.imageContainer.children.length + "px";
@@ -42,6 +44,7 @@ NoJQSlider.prototype = {
 		// méthode pour préparer tout les éléments du DOM que l'ont aurais besoins
 		// pour organiser le dom
 		this.sliderDom = {};
+
 		//Préparation des containers
 		this.sliderDom.imageContainer = document.createElement("div");
 		this.sliderDom.titleDescContainer = document.createElement("div");
@@ -49,6 +52,7 @@ NoJQSlider.prototype = {
 		this.sliderDom.navContainer = document.createElement("div");
 		this.sliderDom.dotsContainer = document.createElement("div");
 		this.sliderDom.controlsContainer = document.createElement("div");
+
 		//Préparation des modèles d'items pour les containers
 		this.sliderDom.imageItem = document.createElement("div");
 		this.sliderDom.imageDOM = document.createElement("img");
@@ -59,12 +63,13 @@ NoJQSlider.prototype = {
 		this.sliderDom.prevItem = document.createElement("div");
 
 		//ajout des classes pour les triggers
+		this.container.classList.add("nojqcontainer")
 		this.sliderDom.imageContainer.classList.add("nojqimgcontainer");
 		this.sliderDom.titleDescContainer.classList.add("nojqtitledesccontainer");
 		this.sliderDom.titleContainer.classList.add("nojqtitlecontainer");
 		this.sliderDom.navContainer.classList.add("nojqnavcontainer");
-		this.sliderDom.dotsContainer.classList.add("nojsdotscontainer");
-		this.sliderDom.controlsContainer.classList.add("nojscontrolscontainer");
+		this.sliderDom.dotsContainer.classList.add("nojqdotscontainer");
+		this.sliderDom.controlsContainer.classList.add("nojqcontrolscontainer");
 		this.sliderDom.descriptionItem.classList.add("nojqdescriptionitem");
 		this.sliderDom.nextItem.classList.add("nojqnextitem");
 		this.sliderDom.prevItem.classList.add("nojqnprevitem");
@@ -75,6 +80,8 @@ NoJQSlider.prototype = {
 		this.sliderDom.dotItem.classList.add("nojqdotItem");
 
 	},
+
+
 	prepareDOMForAjax : function(e){
 		//méthode qui organise le DOM du slider en fonction des éléments dans le DOM.
 		//on parse réupéré de l'AJAX
@@ -127,9 +134,11 @@ NoJQSlider.prototype = {
 		this.container.appendChild(this.sliderDom.controlsContainer);
 		
 		//on lance le responsive des éléments
-		this.makeThemResponsive();
+		console.log(this.sliderDom.imageContainer.children[0].children[0]);
+		this.sliderDom.imageContainer.children[0].children[0].addEventListener('load',function(){this.makeThemResponsive()}.bind(this));
+		//this.makeThemResponsive();
 		//on lance la méthode de binding et d'animation
-		this.startBinding();
+		//this.startBinding();
 	},
 	startBinding : function(){
 		//console.log(this.sliderDom.imageContainer.children);

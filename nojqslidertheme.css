@@ -1,0 +1,32 @@
+body, html{
+	margin: 0;
+	padding: 0;
+}
+
+.nojqcontainer{
+	position:relative;
+	width: 100%;
+}
+.nojqcontainer .nojqimgcontainer{
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	width: 100%;
+	height: auto;
+}
+.nojqcontainer .nojqimgcontainer .nojqimgitem{
+	width: 100%;
+	height: 100%;
+	display: block;
+}
+
+.nojqcontainer .nojqtitledesccontainer{
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 100px;
+	background: rgba(0,0,0,0.8);
+	z-index: 2;
+}
