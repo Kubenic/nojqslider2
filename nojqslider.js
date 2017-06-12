@@ -1,7 +1,7 @@
 function NoJQSlider(container,options){
 	this.container = document.querySelector(container);
 	this.prepareDomItems();
-
+	this.timespeed = options.timespeed || 5000;
 	if (options.isAjax){
 		if(options.ajaxUrl){
 
@@ -31,6 +31,7 @@ NoJQSlider.prototype = {
 				this.sliderDom.imageContainer.children[i].children[0].style.width = "100%";
 				this.sliderDom.imageContainer.children[i].children[0].style.height = "auto";
 				this.sliderDom.imageContainer.children[i].style.display = "inline-block";
+				this.sliderDom.imageContainer.children[i].style.verticalAlign = "top";
 				this.sliderDom.imageContainer.children[i].style.width = this.sliderDom.imageContainer.children[i].children[0].clientWidth + "px";
 			}
 			this.sliderDom.imageContainer.style.width = this.sliderDom.imageContainer.children[0].clientWidth * this.sliderDom.imageContainer.children.length + "px";
@@ -132,6 +133,22 @@ NoJQSlider.prototype = {
 		this.startBinding();
 	},
 	startBinding : function(){
-		//console.log(this.sliderDom.imageContainer.children);
+		//this.siderDom.imageItem
+		   this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed / 1000) + "s";
+		   this.sliderDom.imageContainer.style.transitionProperty = "all";
+			setInterval(function () {
+				this.sliderDom.imageContainer.style.transitionProperty = "all";
+				this.sliderDom.imageContainer.style.MozTransform = 'translate(-'+this.container.clientWidth+'px, 0)';
+			
+			setTimeout(function(){
+				this.sliderDom.imageContainer.style.transitionProperty = "inherit";
+				this.sliderDom.imageContainer.appendChild(this.sliderDom.imageContainer.firstChild);
+				this.sliderDom.imageContainer.style.MozTransform = 'translate(0px, 0)'; 
+			}.bind(this),this.timespeed);   
+
+		
+                
+            }.bind(this), this.timespeed*2);
+
 	}
 };
