@@ -25,7 +25,17 @@ NoJQSlider.prototype = {
 		}
 	},
 	makeThemResponsive : function(){
-
+			this.sliderDom.imageContainer.style.fontSize = "0";
+			for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++) {
+				this.sliderDom.imageContainer.children[i].children[0].style.width = "100%";
+				this.sliderDom.imageContainer.children[i].children[0].style.height = "auto";
+				this.sliderDom.imageContainer.children[i].style.display = "inline-block";
+				this.sliderDom.imageContainer.children[i].style.width = this.sliderDom.imageContainer.children[i].children[0].clientWidth + "px";
+			}
+			this.sliderDom.imageContainer.style.width = this.sliderDom.imageContainer.children[0].clientWidth * this.sliderDom.imageContainer.children.length + "px";
+			this.container.style.width = this.sliderDom.imageContainer.children[0].children[0].clientWidth + "px";
+			this.container.style.height = this.sliderDom.imageContainer.children[0].children[0].clientHeight + "px";
+			this.container.style.overflow = "hidden";
 	},
 	prepareDomItems: function(){
 		// méthode pour préparer tout les éléments du DOM que l'ont aurais besoins
@@ -52,12 +62,12 @@ NoJQSlider.prototype = {
 		this.sliderDom.navContainer.classList.add("nojqnavcontainer");
 		this.sliderDom.dotsContainer.classList.add("nojsdotscontainer");
 		this.sliderDom.controlsContainer.classList.add("nojscontrolscontainer");
+		this.sliderDom.descriptionItem.classList.add("nojqdescriptionitem");
 
 		this.sliderDom.imageItem.classList.add("nojqimageitem");
 		this.sliderDom.titleItem.classList.add("nojqtitleitem");
 		this.sliderDom.titleItem.classList.add("nojqdescriptionitem");
 		this.sliderDom.dotItem.classList.add("nojqdotItem");
-
 
 	},
 	prepareDOMForAjax : function(e){
@@ -108,11 +118,11 @@ NoJQSlider.prototype = {
 		this.container.appendChild(this.sliderDom.controlsContainer);
 		
 		//on lance le responsive des éléments
-		makeThemResponsive();
+		this.makeThemResponsive();
 		//on lance la méthode de binding et d'animation
 		this.startBinding();
 	},
 	startBinding : function(){
-
+		//console.log(this.sliderDom.imageContainer.children);
 	}
 };
