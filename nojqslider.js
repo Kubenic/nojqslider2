@@ -14,6 +14,7 @@ function NoJQSlider(container,options){
 	return this.prototype;
 }
 
+
 NoJQSlider.prototype = {
 	constructor : NoJQSlider,
 	ajaxCall : {
@@ -54,6 +55,8 @@ NoJQSlider.prototype = {
 		this.sliderDom.titleItem = document.createElement("p");
 		this.sliderDom.descriptionItem = document.createElement("p");
 		this.sliderDom.dotItem = document.createElement("div");
+		this.sliderDom.nextItem = document.createElement("div");
+		this.sliderDom.prevItem = document.createElement("div");
 
 		//ajout des classes pour les triggers
 		this.sliderDom.imageContainer.classList.add("nojqimgcontainer");
@@ -63,6 +66,8 @@ NoJQSlider.prototype = {
 		this.sliderDom.dotsContainer.classList.add("nojsdotscontainer");
 		this.sliderDom.controlsContainer.classList.add("nojscontrolscontainer");
 		this.sliderDom.descriptionItem.classList.add("nojqdescriptionitem");
+		this.sliderDom.nextItem.classList.add("nojqnextitem");
+		this.sliderDom.prevItem.classList.add("nojqnprevitem");
 
 		this.sliderDom.imageItem.classList.add("nojqimageitem");
 		this.sliderDom.titleItem.classList.add("nojqtitleitem");
@@ -110,9 +115,13 @@ NoJQSlider.prototype = {
 			titleContainer.appendChild(descriptionItem);
 			this.sliderDom.titleDescContainer.appendChild(titleContainer);
 			this.sliderDom.dotsContainer.appendChild(dot);
+
 		}.bind(this));
 
 		//on envoie au container
+		this.sliderDom.controlsContainer.appendChild(this.sliderDom.prevItem);
+		this.sliderDom.controlsContainer.appendChild(this.sliderDom.nextItem);
+		this.sliderDom.controlsContainer.appendChild(this.sliderDom.dotsContainer);
 		this.container.appendChild(this.sliderDom.imageContainer);
 		this.container.appendChild(this.sliderDom.titleDescContainer);
 		this.container.appendChild(this.sliderDom.controlsContainer);
