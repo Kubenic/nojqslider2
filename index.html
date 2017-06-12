@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+	<meta charset="UTF-8">
+	<title>nojqsliderv2</title>
+</head>
+<body>
+	<div id="slider">
+		
+	</div>
+	<script src="nojqslider.js"></script>
+	<script>
+		var options = {
+			isAjax : true,
+			ajaxUrl : "https://www.skrzypczyk.fr/slideshow.php",
+			ajaxDataModel : {
+				image : "url",
+				title : "title",
+				description : "desc"
+			}
+		}
+
+		var slider = new NoJQSlider("#slider",options);
+	</script>
+</body>
+</html>
