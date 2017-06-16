@@ -2,6 +2,7 @@ function NoJQSlider(container,options){
 	this.container = document.querySelector(container);
 	this.prepareDomItems();
 	this.timespeed = options.timespeed || 5000;
+	this.positionNumber = 0;
 	if (options.isAjax){
 		if(options.ajaxUrl){
 
@@ -30,8 +31,10 @@ NoJQSlider.prototype = {
 			for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++) {
 				this.sliderDom.imageContainer.children[i].children[0].style.width = "100%";
 				this.sliderDom.imageContainer.children[i].children[0].style.height = "auto";
+				this.sliderDom.imageContainer.children[i].children[0].style.display = "block";
 				this.sliderDom.imageContainer.children[i].style.display = "inline-block";
 				this.sliderDom.imageContainer.children[i].style.verticalAlign = "top";
+				//this.sliderDom.imageContainer.children[i].style.width = this.sliderDom.imageContainer.children[i].children[0].clientWidth + "px";
 				this.sliderDom.imageContainer.children[i].style.width = this.sliderDom.imageContainer.children[i].children[0].clientWidth + "px";
 			}
 			this.sliderDom.imageContainer.style.width = this.sliderDom.imageContainer.children[0].clientWidth * this.sliderDom.imageContainer.children.length + "px";
@@ -126,29 +129,72 @@ NoJQSlider.prototype = {
 		this.container.appendChild(this.sliderDom.imageContainer);
 		this.container.appendChild(this.sliderDom.titleDescContainer);
 		this.container.appendChild(this.sliderDom.controlsContainer);
-		
 		//on lance le responsive des éléments
 		this.makeThemResponsive();
-		//on lance la méthode de binding et d'animation
+
 		this.startBinding();
+		//on lance la méthode de binding et d'animation
+		//this.startAnimation();
+
+
+	},
+	nextAnimation: function(event) {
+		if(!this.sliderDom.imageContainer.children[this.positionNumber].nextElementSibling){
+			this.sliderDom.imageContainer.style.transitionProperty = "inherit";
+			this.sliderDom.imageContainer.style.transitionDuration = "0s";
+			this.positionNumber = this.positionNumber - 1;
+			this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")";
+			this.sliderDom.imageContainer.appendChild(this.sliderDom.imageContainer.firstChild);
+		}
+		this.positionNumber++;
+		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
+		this.sliderDom.imageContainer.style.transitionProperty = "transform";
+		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
+		
+
+	},
+	prevAnimation: function(event) {
+		if(!this.sliderDom.imageContainer.children[this.positionNumber].nextElementSibling){
+			this.sliderDom.imageContainer.style.transitionProperty = "inherit";
+			this.sliderDom.imageContainer.style.transitionDuration = "0s";
+			this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth) * 1)+"px,"+0+","+0+")";
+			this.sliderDom.imageContainer.insertBefore(this.sliderDom.imageContainer.firstChild);
+		}
+		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth) * 1)+"px,"+0+","+0+")"
+		this.sliderDom.imageContainer.style.transitionProperty = "transform";
+		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
+		this.sliderDom.imageContainer.insertBefore(this.sliderDom.imageContainer.lastChild, this.sliderDom.imageContainer.firstChild);
+
+	},
+	startAnimation: function() {
+		this.interval = window.setInterval(
+			function(){
+				this.sliderDom.imageContainer.children[this.positionNumber].dataset.selected = "";
+				this.positionNumber++;
+				this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
+				this.sliderDom.imageContainer.style.transitionProperty = "transform";
+				this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
+				this.sliderDom.imageContainer.children[this.positionNumber].dataset.selected = "true";
+				if(!this.sliderDom.imageContainer.children[this.positionNumber].nextElementSibling){
+					window.setTimeout(function(){
+						this.sliderDom.imageContainer.style.transitionProperty = "inherit";
+						this.sliderDom.imageContainer.style.transitionDuration = "0s";
+						this.positionNumber = this.positionNumber - 1;
+						this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")";
+						this.sliderDom.imageContainer.appendChild(this.sliderDom.imageContainer.firstChild);
+					}.bind(this),this.timespeed);
+				}
+			}.bind(this),
+			this.timespeed*2);
 	},
 	startBinding : function(){
-		//this.siderDom.imageItem
-		   this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed / 1000) + "s";
-		   this.sliderDom.imageContainer.style.transitionProperty = "all";
-			setInterval(function () {
-				this.sliderDom.imageContainer.style.transitionProperty = "all";
-				this.sliderDom.imageContainer.style.MozTransform = 'translate(-'+this.container.clientWidth+'px, 0)';
-			
-			setTimeout(function(){
-				this.sliderDom.imageContainer.style.transitionProperty = "inherit";
-				this.sliderDom.imageContainer.appendChild(this.sliderDom.imageContainer.firstChild);
-				this.sliderDom.imageContainer.style.MozTransform = 'translate(0px, 0)'; 
-			}.bind(this),this.timespeed);   
-
+		this.sliderDom.nextItem.addEventListener('click', function(event){
+			this.nextAnimation(event);
+		}.bind(this));
+		this.sliderDom.prevItem.addEventListener('click', function(event){
+			this.prevAnimation(event);
+		}.bind(this));
 		
-                
-            }.bind(this), this.timespeed*2);
-
+	
 	}
 };
