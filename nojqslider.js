@@ -2,7 +2,8 @@ function NoJQSlider(container,options){
 	this.container = document.querySelector(container);
 	this.prepareDomItems();
 	this.size = options.size;
-	
+	this.animationStarted = false;
+	this.positionNumber = 0;
 	if (options.isAjax){
 		if(options.ajaxUrl){
 
@@ -38,7 +39,7 @@ NoJQSlider.prototype = {
 		if(this.imagesLoadedCount == this.totalImagesCount){
 
 			this.makeThemResponsive();
-			this.startAnimation();
+			
 		}
 	},
 	makeThemResponsive : function(){
@@ -72,7 +73,9 @@ NoJQSlider.prototype = {
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.left = (((this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth) /2)  *-1) + "px";
 			}
 			
-			
+			if(!this.animationStarted){
+				this.startAnimation();
+			}
 	},
 	prepareDomItems: function(){
 		// méthode pour préparer tout les éléments du DOM que l'ont aurais besoins
@@ -170,6 +173,7 @@ NoJQSlider.prototype = {
 		//on lance le responsive des éléments
 		console.log(this.sliderDom.imageContainer.children[0].children[0]);
 		for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
+			this.sliderDom.imageContainer.children[i].dataset.selected = "";
 			this.sliderDom.imageContainer.children[i].children[0].addEventListener('load',function(){
 				this.checkIfImageLoaded();
 			}.bind(this));
@@ -231,6 +235,11 @@ NoJQSlider.prototype = {
 	},
 	
 	startBinding : function(){
-		//console.log(this.sliderDom.imageContainer.children);
+		this.sliderDom.nextItem.addEventListener('click', function(event){
+			this.nextAnimation(event);
+		}.bind(this));
+		this.sliderDom.prevItem.addEventListener('click', function(event){
+			this.prevAnimation(event);
+		}.bind(this));
 	}
 };
