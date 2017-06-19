@@ -1,7 +1,8 @@
 function NoJQSlider(container,options){
 	this.container = document.querySelector(container);
 	this.prepareDomItems();
-
+	this.size = options.size;
+	
 	if (options.isAjax){
 		if(options.ajaxUrl){
 
@@ -25,35 +26,60 @@ NoJQSlider.prototype = {
 			this.xhr.send(null);
 		}
 	},
+	checkIfImageLoaded : function(){
+		if(!this.totalImagesCount){
+			this.totalImagesCount = this.sliderDom.imageContainer.children.length;
+		}	
+		if(!this.imagesLoadedCount){
+			this.imagesLoadedCount = 0;
+		}
+
+		this.imagesLoadedCount++;
+		if(this.imagesLoadedCount == this.totalImagesCount){
+
+			this.makeThemResponsive();
+		}
+	},
 	makeThemResponsive : function(){
-		/*console.log("makethemresponsive");
-			this.sliderDom.imageContainer.style.fontSize = "0";
-			for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++) {
-				this.sliderDom.imageContainer.children[i].children[0].style.width = "100%";
-				this.sliderDom.imageContainer.children[i].children[0].style.height = "auto";
-				this.sliderDom.imageContainer.children[i].style.display = "inline-block";
-				this.sliderDom.imageContainer.children[i].style.verticalAlign = "top";
-				this.sliderDom.imageContainer.children[i].style.width = this.sliderDom.imageContainer.children[i].children[0].clientWidth + "px";
-			}
-			this.sliderDom.imageContainer.style.width = this.sliderDom.imageContainer.children[0].clientWidth * this.sliderDom.imageContainer.children.length + "px";
-			this.container.style.width = this.sliderDom.imageContainer.children[0].children[0].clientWidth + "px";
-			this.container.style.height = this.sliderDom.imageContainer.children[0].children[0].clientHeight + "px";
-			this.container.style.overflow = "hidden";*/
 			
-			this.container.style.width = this.container.clientWidth +"px";
+			this.container.style.width = ( this.size.width || this.container.clientWidth ) +"px";
+			this.sliderDom.imageContainer.style.width = this.container.clientWidth * this.sliderDom.imageContainer.children.length +"px";
+			this.container.style.height = (this.size.height || this.container.parentElement.clientHeight)+"px";
+			this.container.style.overflow = "hidden";
 			
 			for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
 				this.sliderDom.imageContainer.children[i].style.width = this.container.clientWidth + "px";
+				this.sliderDom.imageContainer.children[i].style.height = this.container.clientHeight + "px";
+				this.sliderDom.imageContainer.children[i].style.overflow = "hidden";
+				this.sliderDom.imageContainer.children[i].style.position = "relative";
 				this.sliderDom.imageContainer.children[i].style.display = "inline-block";
 				this.sliderDom.imageContainer.children[i].style.verticalAlign = "top";
 				
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.width = this.container.clientWidth + "px";
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.height = "auto";
+				
+				//si image ne prend pas toute la hauteur du bloc : on change de méthode
+				if(this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight < this.sliderDom.imageContainer.children[i].clientHeight){
+					this.sliderDom.imageContainer.children[i].firstElementChild.style.minHeight = this.container.clientHeight + "px";
+					this.sliderDom.imageContainer.children[i].firstElementChild.style.minWidth = "100%";
+				}
+				
+				//centre l'image dans son parent
+				
+				this.sliderDom.imageContainer.children[i].firstElementChild.style.position = "absolute";
+				/*console.log(this.sliderDom.imageContainer.children[i].clientHeight);
+				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight);
+				console.log(this.sliderDom.imageContainer.children[i].clientWidth);
+				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth);
+				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clienHeight - this.sliderDom.imageContainer.children[i].clientHeight);
+				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth);*/
+				console.log("top  == " + (((this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight - this.sliderDom.imageContainer.children[i].clientHeight) /2 ) *-1 ));
+				console.log("left  == " + (((this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth) /2)  *-1));
+				this.sliderDom.imageContainer.children[i].firstElementChild.style.top = (((this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight - this.sliderDom.imageContainer.children[i].clientHeight) /2 ) *-1 ) + "px";
+				this.sliderDom.imageContainer.children[i].firstElementChild.style.left = (((this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth) /2)  *-1) + "px";
 			}
 			
-			this.sliderDom.imageContainer.style.width = this.container.clientWidth * this.sliderDom.imageContainer.children.length +"px";
-			this.container.style.height = this.container.clientHeight +"px";
-			this.container.style.overflow = "hidden";
+			
 	},
 	prepareDomItems: function(){
 		// méthode pour préparer tout les éléments du DOM que l'ont aurais besoins
@@ -150,7 +176,13 @@ NoJQSlider.prototype = {
 		
 		//on lance le responsive des éléments
 		console.log(this.sliderDom.imageContainer.children[0].children[0]);
-		this.sliderDom.imageContainer.children[0].children[0].addEventListener('load',function(){this.makeThemResponsive()}.bind(this));
+		for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
+			this.sliderDom.imageContainer.children[i].children[0].addEventListener('load',function(){
+				this.checkIfImageLoaded();
+			}.bind(this));
+		}
+		
+		//this.sliderDom.imageContainer.children[0].children[0].addEventListener('load',function(){this.makeThemResponsive()}.bind(this));
 		//this.makeThemResponsive();
 		//on lance la méthode de binding et d'animation
 		//this.startBinding();
