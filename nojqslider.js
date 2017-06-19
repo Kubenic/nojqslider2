@@ -44,7 +44,7 @@ NoJQSlider.prototype = {
 			
 			this.container.style.width = ( this.size.width || this.container.clientWidth ) +"px";
 			this.sliderDom.imageContainer.style.width = this.container.clientWidth * this.sliderDom.imageContainer.children.length +"px";
-			this.container.style.height = (this.size.height || this.container.parentElement.clientHeight)+"px";
+			this.container.style.heightgit = (this.size.height || this.container.parentElement.clientHeight)+"px";
 			this.container.style.overflow = "hidden";
 			
 			for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
@@ -67,14 +67,6 @@ NoJQSlider.prototype = {
 				//centre l'image dans son parent
 				
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.position = "absolute";
-				/*console.log(this.sliderDom.imageContainer.children[i].clientHeight);
-				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight);
-				console.log(this.sliderDom.imageContainer.children[i].clientWidth);
-				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth);
-				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clienHeight - this.sliderDom.imageContainer.children[i].clientHeight);
-				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth);*/
-				console.log("top  == " + (((this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight - this.sliderDom.imageContainer.children[i].clientHeight) /2 ) *-1 ));
-				console.log("left  == " + (((this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth) /2)  *-1));
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.top = (((this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight - this.sliderDom.imageContainer.children[i].clientHeight) /2 ) *-1 ) + "px";
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.left = (((this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth) /2)  *-1) + "px";
 			}
