@@ -26,7 +26,7 @@ NoJQSlider.prototype = {
 		}
 	},
 	makeThemResponsive : function(){
-		console.log("makethemresponsive");
+		/*console.log("makethemresponsive");
 			this.sliderDom.imageContainer.style.fontSize = "0";
 			for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++) {
 				this.sliderDom.imageContainer.children[i].children[0].style.width = "100%";
@@ -38,6 +38,21 @@ NoJQSlider.prototype = {
 			this.sliderDom.imageContainer.style.width = this.sliderDom.imageContainer.children[0].clientWidth * this.sliderDom.imageContainer.children.length + "px";
 			this.container.style.width = this.sliderDom.imageContainer.children[0].children[0].clientWidth + "px";
 			this.container.style.height = this.sliderDom.imageContainer.children[0].children[0].clientHeight + "px";
+			this.container.style.overflow = "hidden";*/
+			
+			this.container.style.width = this.container.clientWidth +"px";
+			
+			for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
+				this.sliderDom.imageContainer.children[i].style.width = this.container.clientWidth + "px";
+				this.sliderDom.imageContainer.children[i].style.display = "inline-block";
+				this.sliderDom.imageContainer.children[i].style.verticalAlign = "top";
+				
+				this.sliderDom.imageContainer.children[i].firstElementChild.style.width = this.container.clientWidth + "px";
+				this.sliderDom.imageContainer.children[i].firstElementChild.style.height = "auto";
+			}
+			
+			this.sliderDom.imageContainer.style.width = this.container.clientWidth * this.sliderDom.imageContainer.children.length +"px";
+			this.container.style.height = this.container.clientHeight +"px";
 			this.container.style.overflow = "hidden";
 	},
 	prepareDomItems: function(){
@@ -103,7 +118,7 @@ NoJQSlider.prototype = {
 		// Pour chaque éléments on crée la fiche correspondante
 		this.JSONResponse.forEach(function(element){
 			//Clone les éléments du DOM pour créer la structure de chaque fiche
-			let image = this.sliderDom.imageDOM.cloneNode(true),
+			var image = this.sliderDom.imageDOM.cloneNode(true),
 			imageItem = this.sliderDom.imageItem.cloneNode(true),
 			titleItem = this.sliderDom.titleItem.cloneNode(true),
 			descriptionItem = this.sliderDom.descriptionItem.cloneNode(true),
