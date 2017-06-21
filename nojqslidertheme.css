@@ -30,3 +30,23 @@ body, html{
 	background: rgba(0,0,0,0.8);
 	z-index: 2;
 }
+.nojqcontainer .nojqcontrolscontainer{
+	
+}
+
+.nojqcontainer .nojqcontrolscontainer .nojqprevitem, .nojqcontainer .nojqcontrolscontainer .nojqnextitem{
+	width: 50px;
+	height: 50px;
+	position: absolute;
+	top: 50%;
+	transform:translateY(-50%);
+	background: #eee;
+	z-index: 9999;
+}
+
+.nojqcontainer .nojqcontrolscontainer .nojqprevitem{
+	left: 0;
+}
+.nojqcontainer .nojqcontrolscontainer .nojqnextitem{
+	right: 0;
+}
