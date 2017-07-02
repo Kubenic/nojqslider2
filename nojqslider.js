@@ -1,8 +1,10 @@
 function NoJQSlider(container,options){
 	this.container = document.querySelector(container);
 	this.prepareDomItems();
+	this.size = options.size;
 	this.timespeed = options.timespeed || 5000;
 	this.positionNumber = 0;
+	
 	if (options.isAjax){
 		if(options.ajaxUrl){
 
@@ -26,26 +28,66 @@ NoJQSlider.prototype = {
 			this.xhr.send(null);
 		}
 	},
+	checkIfImageLoaded : function(){
+		if(!this.totalImagesCount){
+			this.totalImagesCount = this.sliderDom.imageContainer.children.length;
+		}	
+		if(!this.imagesLoadedCount){
+			this.imagesLoadedCount = 0;
+		}
+
+		this.imagesLoadedCount++;
+		if(this.imagesLoadedCount == this.totalImagesCount){
+
+			this.makeThemResponsive();
+		}
+	},
 	makeThemResponsive : function(){
-			this.sliderDom.imageContainer.style.fontSize = "0";
-			for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++) {
-				this.sliderDom.imageContainer.children[i].children[0].style.width = "100%";
-				this.sliderDom.imageContainer.children[i].children[0].style.height = "auto";
-				this.sliderDom.imageContainer.children[i].children[0].style.display = "block";
+			
+			this.container.style.width = ( this.size.width || this.container.clientWidth ) +"px";
+			this.sliderDom.imageContainer.style.width = this.container.clientWidth * this.sliderDom.imageContainer.children.length +"px";
+			this.container.style.height = (this.size.height || this.container.parentElement.clientHeight)+"px";
+			this.container.style.overflow = "hidden";
+			
+			for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
+				this.sliderDom.imageContainer.children[i].style.width = this.container.clientWidth + "px";
+				this.sliderDom.imageContainer.children[i].style.height = this.container.clientHeight + "px";
+				this.sliderDom.imageContainer.children[i].style.overflow = "hidden";
+				this.sliderDom.imageContainer.children[i].style.position = "relative";
 				this.sliderDom.imageContainer.children[i].style.display = "inline-block";
 				this.sliderDom.imageContainer.children[i].style.verticalAlign = "top";
-				//this.sliderDom.imageContainer.children[i].style.width = this.sliderDom.imageContainer.children[i].children[0].clientWidth + "px";
-				this.sliderDom.imageContainer.children[i].style.width = this.sliderDom.imageContainer.children[i].children[0].clientWidth + "px";
+				
+				this.sliderDom.imageContainer.children[i].firstElementChild.style.width = this.container.clientWidth + "px";
+				this.sliderDom.imageContainer.children[i].firstElementChild.style.height = "auto";
+				
+				//si image ne prend pas toute la hauteur du bloc : on change de méthode
+				if(this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight < this.sliderDom.imageContainer.children[i].clientHeight){
+					this.sliderDom.imageContainer.children[i].firstElementChild.style.minHeight = this.container.clientHeight + "px";
+					this.sliderDom.imageContainer.children[i].firstElementChild.style.minWidth = "100%";
+				}
+				
+				//centre l'image dans son parent
+				
+				this.sliderDom.imageContainer.children[i].firstElementChild.style.position = "absolute";
+				/*console.log(this.sliderDom.imageContainer.children[i].clientHeight);
+				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight);
+				console.log(this.sliderDom.imageContainer.children[i].clientWidth);
+				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth);
+				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clienHeight - this.sliderDom.imageContainer.children[i].clientHeight);
+				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth);*/
+				//console.log("top  == " + (((this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight - this.sliderDom.imageContainer.children[i].clientHeight) /2 ) *-1 ));
+				//console.log("left  == " + (((this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth) /2)  *-1));
+				this.sliderDom.imageContainer.children[i].firstElementChild.style.top = (((this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight - this.sliderDom.imageContainer.children[i].clientHeight) /2 ) *-1 ) + "px";
+				this.sliderDom.imageContainer.children[i].firstElementChild.style.left = (((this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth) /2)  *-1) + "px";
 			}
-			this.sliderDom.imageContainer.style.width = this.sliderDom.imageContainer.children[0].clientWidth * this.sliderDom.imageContainer.children.length + "px";
-			this.container.style.width = this.sliderDom.imageContainer.children[0].children[0].clientWidth + "px";
-			this.container.style.height = this.sliderDom.imageContainer.children[0].children[0].clientHeight + "px";
-			this.container.style.overflow = "hidden";
+			
+			
 	},
 	prepareDomItems: function(){
 		// méthode pour préparer tout les éléments du DOM que l'ont aurais besoins
 		// pour organiser le dom
 		this.sliderDom = {};
+
 		//Préparation des containers
 		this.sliderDom.imageContainer = document.createElement("div");
 		this.sliderDom.titleDescContainer = document.createElement("div");
@@ -53,6 +95,7 @@ NoJQSlider.prototype = {
 		this.sliderDom.navContainer = document.createElement("div");
 		this.sliderDom.dotsContainer = document.createElement("div");
 		this.sliderDom.controlsContainer = document.createElement("div");
+
 		//Préparation des modèles d'items pour les containers
 		this.sliderDom.imageItem = document.createElement("div");
 		this.sliderDom.imageDOM = document.createElement("img");
@@ -63,12 +106,13 @@ NoJQSlider.prototype = {
 		this.sliderDom.prevItem = document.createElement("div");
 
 		//ajout des classes pour les triggers
+		this.container.classList.add("nojqcontainer")
 		this.sliderDom.imageContainer.classList.add("nojqimgcontainer");
 		this.sliderDom.titleDescContainer.classList.add("nojqtitledesccontainer");
 		this.sliderDom.titleContainer.classList.add("nojqtitlecontainer");
 		this.sliderDom.navContainer.classList.add("nojqnavcontainer");
-		this.sliderDom.dotsContainer.classList.add("nojsdotscontainer");
-		this.sliderDom.controlsContainer.classList.add("nojscontrolscontainer");
+		this.sliderDom.dotsContainer.classList.add("nojqdotscontainer");
+		this.sliderDom.controlsContainer.classList.add("nojqcontrolscontainer");
 		this.sliderDom.descriptionItem.classList.add("nojqdescriptionitem");
 		this.sliderDom.nextItem.classList.add("nojqnextitem");
 		this.sliderDom.prevItem.classList.add("nojqnprevitem");
@@ -79,6 +123,8 @@ NoJQSlider.prototype = {
 		this.sliderDom.dotItem.classList.add("nojqdotItem");
 
 	},
+
+
 	prepareDOMForAjax : function(e){
 		//méthode qui organise le DOM du slider en fonction des éléments dans le DOM.
 		//on parse réupéré de l'AJAX
@@ -100,7 +146,7 @@ NoJQSlider.prototype = {
 		// Pour chaque éléments on crée la fiche correspondante
 		this.JSONResponse.forEach(function(element){
 			//Clone les éléments du DOM pour créer la structure de chaque fiche
-			let image = this.sliderDom.imageDOM.cloneNode(true),
+			var image = this.sliderDom.imageDOM.cloneNode(true),
 			imageItem = this.sliderDom.imageItem.cloneNode(true),
 			titleItem = this.sliderDom.titleItem.cloneNode(true),
 			descriptionItem = this.sliderDom.descriptionItem.cloneNode(true),
@@ -129,14 +175,22 @@ NoJQSlider.prototype = {
 		this.container.appendChild(this.sliderDom.imageContainer);
 		this.container.appendChild(this.sliderDom.titleDescContainer);
 		this.container.appendChild(this.sliderDom.controlsContainer);
+		
 		//on lance le responsive des éléments
+		console.log(this.sliderDom.imageContainer.children[0].children[0]);
+		for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
+			this.sliderDom.imageContainer.children[i].children[0].addEventListener('load',function(){
+				this.checkIfImageLoaded();
+			}.bind(this));
+		}
+		
+		//this.sliderDom.imageContainer.children[0].children[0].addEventListener('load',function(){this.makeThemResponsive()}.bind(this));
+		//this.makeThemResponsive();
+		//on lance la méthode de binding et d'animation
+		//this.startBinding();
 		this.makeThemResponsive();
 
-		this.startBinding();
-		//on lance la méthode de binding et d'animation
-		//this.startAnimation();
-
-
+        this.startBinding();
 	},
 	nextAnimation: function(event) {
 		if(!this.sliderDom.imageContainer.children[this.positionNumber].nextElementSibling){
@@ -150,21 +204,23 @@ NoJQSlider.prototype = {
 		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
 		this.sliderDom.imageContainer.style.transitionProperty = "transform";
 		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
-		
-
+		console.log(this.positionNumber);
 	},
 	prevAnimation: function(event) {
-		if(!this.sliderDom.imageContainer.children[this.positionNumber].nextElementSibling){
+
+		if(!this.sliderDom.imageContainer.children[this.positionNumber].previousElementSibling){
 			this.sliderDom.imageContainer.style.transitionProperty = "inherit";
 			this.sliderDom.imageContainer.style.transitionDuration = "0s";
-			this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth) * 1)+"px,"+0+","+0+")";
-			this.sliderDom.imageContainer.insertBefore(this.sliderDom.imageContainer.firstChild);
+			this.positionNumber = this.sliderDom.imageContainer.childElementCount;
+			this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")";
+			this.sliderDom.imageContainer.appendChild(this.sliderDom.imageContainer.lastChild);
 		}
-		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth) * 1)+"px,"+0+","+0+")"
+		this.positionNumber--;
+		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
 		this.sliderDom.imageContainer.style.transitionProperty = "transform";
 		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
-		this.sliderDom.imageContainer.insertBefore(this.sliderDom.imageContainer.lastChild, this.sliderDom.imageContainer.firstChild);
 
+		console.log(this.positionNumber);		
 	},
 	startAnimation: function() {
 		this.interval = window.setInterval(
@@ -186,15 +242,14 @@ NoJQSlider.prototype = {
 				}
 			}.bind(this),
 			this.timespeed*2);
-	},
+},
 	startBinding : function(){
+		//console.log(this.sliderDom.imageContainer.children);
 		this.sliderDom.nextItem.addEventListener('click', function(event){
 			this.nextAnimation(event);
 		}.bind(this));
 		this.sliderDom.prevItem.addEventListener('click', function(event){
 			this.prevAnimation(event);
-		}.bind(this));
-		
-	
+        }.bind(this));
 	}
 };
