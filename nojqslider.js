@@ -66,6 +66,9 @@ function NoJQSlider(container,options){
 	this.bindingStarted = false;
 	this.timespeed = options.timespeed || 5000;
 	this.positionNumber = 0;
+	this.latestCalledButton = Date.now();
+	this.minIntervalButton = Math.round((this.timespeed /100) * 80);
+
 	if (options.isAjax){
 		if(options.ajaxUrl){
 
@@ -252,6 +255,8 @@ NoJQSlider.prototype = {
 		//on lance le responsive des éléments
 		for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
 			this.sliderDom.imageContainer.children[i].dataset.selected = "";
+			this.sliderDom.imageContainer.children[i].dataset.id = i;
+			this.sliderDom.titleDescContainer.children[i].dataset.id = i;
 			this.sliderDom.imageContainer.children[i].children[0].addEventListener('load',function(){
 				this.checkIfImageLoaded();
 			}.bind(this));
@@ -263,50 +268,64 @@ NoJQSlider.prototype = {
 		//this.startBinding();
 	},
 	nextAnimation: function(event) {
+		var now = Date.now();
+		if(this.latestCalledButton + this.minIntervalButton < now){
+			if(typeof(event) !== "undefined"){
+				if(event.target){
+					this.stopAnimation();
+				}
+			}
+			if(!this.sliderDom.imageContainer.children[this.positionNumber].nextElementSibling){
+
+					 		this.sliderDom.imageContainer.style.transitionProperty = "inherit";
+					 		this.sliderDom.imageContainer.style.transitionDuration = "0s";
+					 		this.positionNumber = this.positionNumber - 1;
+					 		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")";
+					 		this.sliderDom.imageContainer.appendChild(this.sliderDom.imageContainer.firstChild);
+					 }
+			this.sliderDom.imageContainer.children[this.positionNumber].dataset.selected = "";
+					if(this.positionNumber < this.sliderDom.imageContainer.children.length){
+						this.positionNumber++;
+					}
+					
+					this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
+					this.sliderDom.imageContainer.style.transitionProperty = "transform";
+					this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
+					this.sliderDom.imageContainer.children[this.positionNumber].dataset.selected = "true";
+					 
+			if(typeof(event) !== "undefined"){
+				if(event.target){
+					this.startAnimation();
+				}
+			}
+			this.latestCalledButton = Date.now();
+		}	
+
+	},
+	prevAnimation: function(event) {
+		var now = Date.now();
+		if(this.latestCalledButton + this.minIntervalButton < now){
 		this.stopAnimation();
-		if(!this.sliderDom.imageContainer.children[this.positionNumber].nextElementSibling){
+		if(!this.sliderDom.imageContainer.children[this.positionNumber].previousElementSibling){
+			this.sliderDom.imageContainer.style.animationPlayState = "paused";
 			this.sliderDom.imageContainer.style.transitionProperty = "inherit";
 			this.sliderDom.imageContainer.style.transitionDuration = "0s";
-			this.positionNumber = this.positionNumber - 1;
+			this.positionNumber = this.sliderDom.imageContainer.childElementCount;
 			this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")";
-			this.sliderDom.imageContainer.appendChild(this.sliderDom.imageContainer.firstChild);
+			this.sliderDom.imageContainer.insertBefore(this.sliderDom.imageContainer.firstChild, this.sliderDom.imageContainer.lastChild);
 		}
-		this.positionNumber++;
+		this.positionNumber--;
 		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
 		this.sliderDom.imageContainer.style.transitionProperty = "transform";
 		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
 		if(!this.animationStarted){
 			this.startAnimation();	
 		}
-		
-
+		this.latestCalledButton = Date.now();
+		}
 	},
-	prevAnimation: function(event) {
-		this.stopAnimation();
+	prepareNext : function(){
 		if(!this.sliderDom.imageContainer.children[this.positionNumber].nextElementSibling){
-			this.sliderDom.imageContainer.style.transitionProperty = "inherit";
-			this.sliderDom.imageContainer.style.transitionDuration = "0s";
-			this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth) * 1)+"px,"+0+","+0+")";
-			this.sliderDom.imageContainer.insertBefore(this.sliderDom.imageContainer.firstChild);
-		}
-		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth) * 1)+"px,"+0+","+0+")"
-		this.sliderDom.imageContainer.style.transitionProperty = "transform";
-		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
-		this.sliderDom.imageContainer.insertBefore(this.sliderDom.imageContainer.lastChild, this.sliderDom.imageContainer.firstChild);
-		if(!this.animationStarted){
-			this.startAnimation();	
-		}
-	},
-	startAnimation: function() {
-		this.interval = window.setInterval(
-			function(){
-				this.sliderDom.imageContainer.children[this.positionNumber].dataset.selected = "";
-				this.positionNumber++;
-				this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
-				this.sliderDom.imageContainer.style.transitionProperty = "transform";
-				this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
-				this.sliderDom.imageContainer.children[this.positionNumber].dataset.selected = "true";
-				if(!this.sliderDom.imageContainer.children[this.positionNumber].nextElementSibling){
 					window.setTimeout(function(){
 						this.sliderDom.imageContainer.style.transitionProperty = "inherit";
 						this.sliderDom.imageContainer.style.transitionDuration = "0s";
@@ -315,6 +334,11 @@ NoJQSlider.prototype = {
 						this.sliderDom.imageContainer.appendChild(this.sliderDom.imageContainer.firstChild);
 					}.bind(this),this.timespeed);
 				}
+	},
+	startAnimation: function() {
+		this.interval = window.setInterval(
+			function(){
+				this.nextAnimation();
 			}.bind(this),
 			this.timespeed*2);
 			this.animationStarted = true;
