@@ -50,3 +50,24 @@ body, html{
 .nojqcontainer .nojqcontrolscontainer .nojqnextitem{
 	right: 0;
 }
+.nojqcontainer .nojqcontrolscontainer .nojqdotscontainer{
+	position: relative;
+	top:10px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 10;
+	display: inline-block;
+
+}
+.nojqcontainer .nojqcontrolscontainer .nojqdotscontainer .nojqdotItem{
+	width: 15px;
+	height: 15px;
+	margin: 0 5px;
+	border-radius:50%;
+	background: #fff;
+	display: inline-block;
+	opacity: 0.8;
+}
+.nojqcontainer .nojqcontrolscontainer .nojqdotscontainer .nojqdotItem.active{
+opacity: 1;
+}
