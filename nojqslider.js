@@ -1,3 +1,63 @@
+// Thanks Christophe Porteneuve  -- bit.ly/jsyoulove
+// Fonction Throttle : stop l'appel à la fonction selon un délai
+var throttle = function (fx, minInterval) { 
+  var latestCall;
+
+  return function throttled() {
+    var now = Date.now();
+    if (latestCall + minInterval > now) {
+      return;
+    }
+    latestCall = now;
+    var result = fx.apply(this, arguments);
+    // Pour un debounce, on mettrait à jour latestCall ici plutôt.
+    return result;
+  	}
+
+}
+
+/* Fonction Debounce : reset un appel de fonction après un délai  */
+var debounce = function (fx, delay, immediate){
+	var that = this,
+		timeout;
+
+	 return function debounced(){
+	 	var context = this, arg = arguments;
+
+	 	var later = function(){
+	 		timeout = null;
+	 		if (!immediate) fx.apply(context, arg);
+	 	};
+
+	 	var callNow = immediate &&  !timeout;
+	 	clearTimeout(timeout);
+	 	timeout = setTimeout(later, delay);
+	 	if (callNow) fx.apply(context, arg);
+	 };
+
+}
+
+/* Fonction Debounce : reset un appel de fonction après un délai  */
+var debounce = function (fx, delay, immediate){
+	var that = this,
+		timeout;
+
+	 return function debounced(){
+	 	var context = this, arg = arguments;
+
+	 	var later = function(){
+	 		timeout = null;
+	 		if (!immediate) fx.apply(context, arg);
+	 	};
+
+	 	var callNow = immediate &&  !timeout;
+	 	clearTimeout(timeout);
+	 	timeout = setTimeout(later, delay);
+	 	if (callNow) fx.apply(context, arg);
+	 };
+
+}
+
 function NoJQSlider(container,options){
 	this.container = document.querySelector(container);
 	this.prepareDomItems();
@@ -44,9 +104,23 @@ NoJQSlider.prototype = {
 			
 		}
 	},
-	makeThemResponsive : function(){
-			
-			this.container.style.width = ( this.size.width || this.container.clientWidth ) +"px";
+	resetActivePosition : function(){
+		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
+		this.sliderDom.imageContainer.style.transitionProperty = "transform";
+		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
+	},
+	makeThemResponsive : throttle(function(e){
+			/*if(typeof(e) !== "undefined"){
+				if(e.target){
+					this.container.style.width = "100%";	
+				}
+			}*/
+			if(this.animationStarted){
+				this.stopAnimation();
+				
+			}
+			//this.container.style.width = ( this.size.width || this.container.clientWidth ) +"px";
+			this.container.style.width = this.container.parentElement.clientWidth +"px";
 			this.sliderDom.imageContainer.style.width = this.container.clientWidth * this.sliderDom.imageContainer.children.length +"px";
 			this.container.style.height = (this.size.height || this.container.parentElement.clientHeight)+"px";
 			this.container.style.overflow = "hidden";
@@ -74,14 +148,14 @@ NoJQSlider.prototype = {
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.top = (((this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight - this.sliderDom.imageContainer.children[i].clientHeight) /2 ) *-1 ) + "px";
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.left = (((this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth) /2)  *-1) + "px";
 			}
-			
+			this.resetActivePosition();
 			if(!this.animationStarted){
 				this.startAnimation();
 			}
 			if(!this.bindingStarted){
 				this.startBinding();
 			}
-	},
+	},50),
 	prepareDomItems: function(){
 		// méthode pour préparer tout les éléments du DOM que l'ont aurais besoins
 		// pour organiser le dom
@@ -176,7 +250,6 @@ NoJQSlider.prototype = {
 		this.container.appendChild(this.sliderDom.controlsContainer);
 		
 		//on lance le responsive des éléments
-		console.log(this.sliderDom.imageContainer.children[0].children[0]);
 		for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
 			this.sliderDom.imageContainer.children[i].dataset.selected = "";
 			this.sliderDom.imageContainer.children[i].children[0].addEventListener('load',function(){
@@ -202,8 +275,10 @@ NoJQSlider.prototype = {
 		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
 		this.sliderDom.imageContainer.style.transitionProperty = "transform";
 		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
+		if(!this.animationStarted){
+			this.startAnimation();	
+		}
 		
-		//this.startAnimation();
 
 	},
 	prevAnimation: function(event) {
@@ -218,7 +293,9 @@ NoJQSlider.prototype = {
 		this.sliderDom.imageContainer.style.transitionProperty = "transform";
 		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
 		this.sliderDom.imageContainer.insertBefore(this.sliderDom.imageContainer.lastChild, this.sliderDom.imageContainer.firstChild);
-		//this.startAnimation();
+		if(!this.animationStarted){
+			this.startAnimation();	
+		}
 	},
 	startAnimation: function() {
 		this.interval = window.setInterval(
@@ -240,10 +317,12 @@ NoJQSlider.prototype = {
 				}
 			}.bind(this),
 			this.timespeed*2);
+			this.animationStarted = true;
 	},
 	
 	stopAnimation : function(){
 		window.clearInterval(this.interval);
+		this.animationStarted = false;
 	},
 	
 	startBinding : function(){
@@ -252,6 +331,9 @@ NoJQSlider.prototype = {
 		}.bind(this));
 		this.sliderDom.prevItem.addEventListener('click', function(event){
 			this.prevAnimation(event);
+		}.bind(this));
+		window.addEventListener('resize',function(e){
+			this.makeThemResponsive();
 		}.bind(this));
 	}
 };
