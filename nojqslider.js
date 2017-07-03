@@ -1,8 +1,74 @@
+// Thanks Christophe Porteneuve  -- bit.ly/jsyoulove
+// Fonction Throttle : stop l'appel à la fonction selon un délai
+var throttle = function (fx, minInterval) { 
+  var latestCall;
+
+  return function throttled() {
+    var now = Date.now();
+    if (latestCall + minInterval > now) {
+      return;
+    }
+    latestCall = now;
+    var result = fx.apply(this, arguments);
+    // Pour un debounce, on mettrait à jour latestCall ici plutôt.
+    return result;
+  	}
+
+}
+
+/* Fonction Debounce : reset un appel de fonction après un délai  */
+var debounce = function (fx, delay, immediate){
+	var that = this,
+		timeout;
+
+	 return function debounced(){
+	 	var context = this, arg = arguments;
+
+	 	var later = function(){
+	 		timeout = null;
+	 		if (!immediate) fx.apply(context, arg);
+	 	};
+
+	 	var callNow = immediate &&  !timeout;
+	 	clearTimeout(timeout);
+	 	timeout = setTimeout(later, delay);
+	 	if (callNow) fx.apply(context, arg);
+	 };
+
+}
+
+/* Fonction Debounce : reset un appel de fonction après un délai  */
+var debounce = function (fx, delay, immediate){
+	var that = this,
+		timeout;
+
+	 return function debounced(){
+	 	var context = this, arg = arguments;
+
+	 	var later = function(){
+	 		timeout = null;
+	 		if (!immediate) fx.apply(context, arg);
+	 	};
+
+	 	var callNow = immediate &&  !timeout;
+	 	clearTimeout(timeout);
+	 	timeout = setTimeout(later, delay);
+	 	if (callNow) fx.apply(context, arg);
+	 };
+
+}
+
 function NoJQSlider(container,options){
 	this.container = document.querySelector(container);
 	this.prepareDomItems();
 	this.size = options.size;
-	
+	this.animationStarted = false;
+	this.bindingStarted = false;
+	this.timespeed = options.timespeed || 5000;
+	this.positionNumber = 0;
+	this.latestCalledButton = Date.now();
+	this.minIntervalButton = Math.round((this.timespeed /100) * 80);
+
 	if (options.isAjax){
 		if(options.ajaxUrl){
 
@@ -38,11 +104,26 @@ NoJQSlider.prototype = {
 		if(this.imagesLoadedCount == this.totalImagesCount){
 
 			this.makeThemResponsive();
+			
 		}
 	},
-	makeThemResponsive : function(){
-			
-			this.container.style.width = ( this.size.width || this.container.clientWidth ) +"px";
+	resetActivePosition : function(){
+		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
+		this.sliderDom.imageContainer.style.transitionProperty = "transform";
+		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
+	},
+	makeThemResponsive : throttle(function(e){
+			/*if(typeof(e) !== "undefined"){
+				if(e.target){
+					this.container.style.width = "100%";	
+				}
+			}*/
+			if(this.animationStarted){
+				this.stopAnimation();
+				
+			}
+			//this.container.style.width = ( this.size.width || this.container.clientWidth ) +"px";
+			this.container.style.width = this.container.parentElement.clientWidth +"px";
 			this.sliderDom.imageContainer.style.width = this.container.clientWidth * this.sliderDom.imageContainer.children.length +"px";
 			this.container.style.height = (this.size.height || this.container.parentElement.clientHeight)+"px";
 			this.container.style.overflow = "hidden";
@@ -67,20 +148,17 @@ NoJQSlider.prototype = {
 				//centre l'image dans son parent
 				
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.position = "absolute";
-				/*console.log(this.sliderDom.imageContainer.children[i].clientHeight);
-				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight);
-				console.log(this.sliderDom.imageContainer.children[i].clientWidth);
-				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth);
-				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clienHeight - this.sliderDom.imageContainer.children[i].clientHeight);
-				console.log(this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth);*/
-				console.log("top  == " + (((this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight - this.sliderDom.imageContainer.children[i].clientHeight) /2 ) *-1 ));
-				console.log("left  == " + (((this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth) /2)  *-1));
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.top = (((this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight - this.sliderDom.imageContainer.children[i].clientHeight) /2 ) *-1 ) + "px";
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.left = (((this.sliderDom.imageContainer.children[i].firstElementChild.clientWidth - this.sliderDom.imageContainer.children[i].clientWidth) /2)  *-1) + "px";
 			}
-			
-			
-	},
+			this.resetActivePosition();
+			if(!this.animationStarted){
+				this.startAnimation();
+			}
+			if(!this.bindingStarted){
+				this.startBinding();
+			}
+	},50),
 	prepareDomItems: function(){
 		// méthode pour préparer tout les éléments du DOM que l'ont aurais besoins
 		// pour organiser le dom
@@ -102,6 +180,8 @@ NoJQSlider.prototype = {
 		this.sliderDom.dotItem = document.createElement("div");
 		this.sliderDom.nextItem = document.createElement("div");
 		this.sliderDom.prevItem = document.createElement("div");
+		this.sliderDom.play = document.createElement("div");
+		this.sliderDom.stop = document.createElement("div");
 
 		//ajout des classes pour les triggers
 		this.container.classList.add("nojqcontainer")
@@ -113,7 +193,9 @@ NoJQSlider.prototype = {
 		this.sliderDom.controlsContainer.classList.add("nojqcontrolscontainer");
 		this.sliderDom.descriptionItem.classList.add("nojqdescriptionitem");
 		this.sliderDom.nextItem.classList.add("nojqnextitem");
-		this.sliderDom.prevItem.classList.add("nojqnprevitem");
+		this.sliderDom.prevItem.classList.add("nojqprevitem");
+		this.sliderDom.play.classList.add("nojqplayitem");
+		this.sliderDom.stop.classList.add("nojqpstopitem");
 
 		this.sliderDom.imageItem.classList.add("nojqimageitem");
 		this.sliderDom.titleItem.classList.add("nojqtitleitem");
@@ -173,10 +255,13 @@ NoJQSlider.prototype = {
 		this.container.appendChild(this.sliderDom.imageContainer);
 		this.container.appendChild(this.sliderDom.titleDescContainer);
 		this.container.appendChild(this.sliderDom.controlsContainer);
+		this.sliderDom.titleDescContainer.children[0].style.display = "block";
 		
 		//on lance le responsive des éléments
-		console.log(this.sliderDom.imageContainer.children[0].children[0]);
 		for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
+			this.sliderDom.imageContainer.children[i].dataset.selected = "";
+			this.sliderDom.imageContainer.children[i].dataset.id = i;
+			this.sliderDom.titleDescContainer.children[i].dataset.id = i;
 			this.sliderDom.imageContainer.children[i].children[0].addEventListener('load',function(){
 				this.checkIfImageLoaded();
 			}.bind(this));
@@ -187,7 +272,120 @@ NoJQSlider.prototype = {
 		//on lance la méthode de binding et d'animation
 		//this.startBinding();
 	},
+	nextAnimation: function(event) {
+		var now = Date.now();
+		if(this.latestCalledButton + this.minIntervalButton < now){
+			if(typeof(event) !== "undefined"){
+				if(event.target){
+					this.stopAnimation();
+				}
+			}
+
+			if(!this.sliderDom.imageContainer.children[this.positionNumber].nextElementSibling){
+
+					 		this.sliderDom.imageContainer.style.transitionProperty = "inherit";
+					 		this.sliderDom.imageContainer.style.transitionDuration = "0s";
+					 		this.positionNumber = this.positionNumber - 1;
+					 		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")";
+					 		this.sliderDom.imageContainer.appendChild(this.sliderDom.imageContainer.firstChild);
+
+					 }
+			this.sliderDom.imageContainer.children[this.positionNumber].dataset.selected = "";
+			this.hideTitlecontainer();
+			
+					if(this.positionNumber < this.sliderDom.imageContainer.children.length){
+						this.positionNumber++;
+					}
+					this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
+					this.sliderDom.imageContainer.style.transitionProperty = "transform";
+					this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
+					this.sliderDom.imageContainer.children[this.positionNumber].dataset.selected = "true";
+					this.displayTitleContainter();
+					 
+			if(typeof(event) !== "undefined"){
+				if(event.target){
+					this.startAnimation();
+				}
+			}
+			this.latestCalledButton = Date.now();
+		}	
+
+	},
+	prevAnimation: function(event) {
+		var now = Date.now();
+		if(this.latestCalledButton + this.minIntervalButton < now){
+		this.stopAnimation();
+		if(!this.sliderDom.imageContainer.children[this.positionNumber].previousElementSibling){
+			this.sliderDom.imageContainer.style.animationPlayState = "paused";
+			this.sliderDom.imageContainer.style.transitionProperty = "inherit";
+			this.sliderDom.imageContainer.style.transitionDuration = "0s";
+			this.positionNumber = this.sliderDom.imageContainer.childElementCount;
+			this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")";
+			this.sliderDom.imageContainer.insertBefore(this.sliderDom.imageContainer.firstChild, this.sliderDom.imageContainer.lastChild);
+		}
+		this.hideTitlecontainer();
+		this.positionNumber--;
+		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
+		this.sliderDom.imageContainer.style.transitionProperty = "transform";
+		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
+		this.displayTitleContainter();
+		if(!this.animationStarted){
+			this.startAnimation();	
+		}
+		this.latestCalledButton = Date.now();
+		}
+	},
+	prepareNext : function(){
+		if(!this.sliderDom.imageContainer.children[this.positionNumber].nextElementSibling){
+					window.setTimeout(function(){
+						this.sliderDom.imageContainer.style.transitionProperty = "inherit";
+						this.sliderDom.imageContainer.style.transitionDuration = "0s";
+						this.positionNumber = this.positionNumber - 1;
+						this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")";
+						this.sliderDom.imageContainer.appendChild(this.sliderDom.imageContainer.firstChild);
+					}.bind(this),this.timespeed);
+				}
+	},
+	startAnimation: function() {
+		this.interval = window.setInterval(
+			function(){
+
+				this.nextAnimation();
+				
+
+			}.bind(this),
+			this.timespeed*2);
+			this.animationStarted = true;
+	},
+	
+	stopAnimation : function(){
+		window.clearInterval(this.interval);
+		this.animationStarted = false;
+	},
+	displayTitleContainter: function(event) {
+		window.setTimeout(function(){
+						this.sliderDom.titleDescContainer.children[this.sliderDom.imageContainer.children[this.positionNumber].dataset.id].style.display = "block";	
+					}.bind(this),1000);
+		
+	},
+	hideTitlecontainer: function(event) {
+		this.sliderDom.titleDescContainer.children[this.sliderDom.imageContainer.children[this.positionNumber].dataset.id].style.display = "";
+	},
 	startBinding : function(){
-		//console.log(this.sliderDom.imageContainer.children);
+		this.sliderDom.nextItem.addEventListener('click', function(event){
+			this.nextAnimation(event);
+		}.bind(this));
+		this.sliderDom.prevItem.addEventListener('click', function(event){
+			this.prevAnimation(event);
+		}.bind(this));
+		this.sliderDom.stop.addEventListener('click', function(event){
+			this.stopAnimation(event);
+		}.bind(this));
+		this.sliderDom.play.addEventListener('click', function(event){
+			this.startAnimation(event);
+		}.bind(this));
+		window.addEventListener('resize',function(e){
+			this.makeThemResponsive();
+		}.bind(this));
 	}
 };
