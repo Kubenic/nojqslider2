@@ -62,12 +62,10 @@ function NoJQSlider(container,options){
 	this.container = document.querySelector(container);
 	this.prepareDomItems();
 	this.size = options.size;
-
 	this.animationStarted = false;
 	this.bindingStarted = false;
 	this.timespeed = options.timespeed || 5000;
 	this.positionNumber = 0;
-
 	if (options.isAjax){
 		if(options.ajaxUrl){
 
@@ -102,7 +100,8 @@ NoJQSlider.prototype = {
 		this.imagesLoadedCount++;
 		if(this.imagesLoadedCount == this.totalImagesCount){
 
-			this.makeThemResponsive();			
+			this.makeThemResponsive();
+			
 		}
 	},
 	resetActivePosition : function(){
@@ -251,7 +250,6 @@ NoJQSlider.prototype = {
 		this.container.appendChild(this.sliderDom.controlsContainer);
 		
 		//on lance le responsive des éléments
-
 		for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
 			this.sliderDom.imageContainer.children[i].dataset.selected = "";
 			this.sliderDom.imageContainer.children[i].children[0].addEventListener('load',function(){
@@ -263,7 +261,6 @@ NoJQSlider.prototype = {
 		//this.makeThemResponsive();
 		//on lance la méthode de binding et d'animation
 		//this.startBinding();
-
 	},
 	nextAnimation: function(event) {
 		this.stopAnimation();
@@ -278,10 +275,11 @@ NoJQSlider.prototype = {
 		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
 		this.sliderDom.imageContainer.style.transitionProperty = "transform";
 		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
-
 		if(!this.animationStarted){
 			this.startAnimation();	
 		}
+		
+
 	},
 	prevAnimation: function(event) {
 		this.stopAnimation();
@@ -290,7 +288,7 @@ NoJQSlider.prototype = {
 			this.sliderDom.imageContainer.style.transitionDuration = "0s";
 			this.positionNumber = this.sliderDom.imageContainer.childElementCount;
 			this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")";
-			this.sliderDom.imageContainer.appendChild(this.sliderDom.imageContainer.lastChild);
+			this.sliderDom.imageContainer.insertBefore(this.sliderDom.imageContainer.firstChild, this.sliderDom.imageContainer.lastChild);
 		}
 		this.positionNumber--;
 		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
@@ -298,8 +296,7 @@ NoJQSlider.prototype = {
 		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
 		if(!this.animationStarted){
 			this.startAnimation();	
-		}
-
+}
 	},
 	startAnimation: function() {
 		this.interval = window.setInterval(
@@ -321,7 +318,6 @@ NoJQSlider.prototype = {
 				}
 			}.bind(this),
 			this.timespeed*2);
-
 			this.animationStarted = true;
 	},
 	
