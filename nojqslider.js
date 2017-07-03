@@ -255,6 +255,8 @@ NoJQSlider.prototype = {
 		//on lance le responsive des éléments
 		for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
 			this.sliderDom.imageContainer.children[i].dataset.selected = "";
+			this.sliderDom.imageContainer.children[i].dataset.id = i;
+			this.sliderDom.titleDescContainer.children[i].dataset.id = i;
 			this.sliderDom.imageContainer.children[i].children[0].addEventListener('load',function(){
 				this.checkIfImageLoaded();
 			}.bind(this));
