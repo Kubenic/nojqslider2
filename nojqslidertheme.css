@@ -50,24 +50,31 @@ body, html{
 .nojqcontainer .nojqcontrolscontainer .nojqnextitem{
 	right: 0;
 }
-.nojqcontainer .nojqcontrolscontainer .nojqdotscontainer{
-	position: relative;
-	top:10px;
-	left: 50%;
-	transform: translateX(-50%);
-	z-index: 10;
-	display: inline-block;
+.nojqtitlecontainer {
+	display:none;
+	color:white;
+	 animation: fadein 2s;
 
 }
-.nojqcontainer .nojqcontrolscontainer .nojqdotscontainer .nojqdotItem{
-	width: 15px;
-	height: 15px;
-	margin: 0 5px;
-	border-radius:50%;
-	background: #fff;
-	display: inline-block;
-	opacity: 0.8;
+
+
+.nojqtitleitem {
+	text-align:center;
+	font-size:25px;
+	font-weight:bold;
+
 }
-.nojqcontainer .nojqcontrolscontainer .nojqdotscontainer .nojqdotItem.active{
-opacity: 1;
+
+.nojqtitlecontainer {
+	text-align: center;
+	margin-top: -12px;
+
+}
+@keyframes fadein {
+    from {
+        opacity:0;
+    }
+    to {
+        opacity:1;
+    }
 }
