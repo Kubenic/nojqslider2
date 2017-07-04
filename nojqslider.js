@@ -340,6 +340,8 @@ NoJQSlider.prototype = {
 					if(this.positionNumber < this.sliderDom.imageContainer.children.length){
 						this.positionNumber++;
 					}
+					this.resetSelected();
+		this.sliderDom.imageContainer.children[this.positionNumber].dataset.selected = "true";
 					this.selectDotsFromImage(this.sliderDom.imageContainer.children[this.positionNumber]);
 					this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
 					this.sliderDom.imageContainer.style.transitionProperty = "transform";
@@ -356,21 +358,31 @@ NoJQSlider.prototype = {
 		}	
 
 	},
+	resetSelected : function(){
+		for(var i =0; i< this.sliderDom.imageContainer.children.length; i++){
+			if(this.sliderDom.imageContainer.children[i].dataset.selected == "true"){
+				this.sliderDom.imageContainer.children[i].dataset.selected = "";
+			}
+		}
+	},
 	prevAnimation: function(event) {
 		var now = Date.now();
 		if(this.latestCalledButton + this.minIntervalButton < now){
 		this.stopAnimation();
+
 		if(!this.sliderDom.imageContainer.children[this.positionNumber].previousElementSibling){
 			this.sliderDom.imageContainer.style.animationPlayState = "paused";
 			this.sliderDom.imageContainer.style.transitionProperty = "inherit";
 			this.sliderDom.imageContainer.style.transitionDuration = "0s";
-			this.positionNumber = this.sliderDom.imageContainer.childElementCount;
+			this.positionNumber++;
+			this.sliderDom.imageContainer.insertBefore(this.sliderDom.imageContainer.children[this.sliderDom.imageContainer.children.length-1], this.sliderDom.imageContainer.children[0]);
 			this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")";
-			this.sliderDom.imageContainer.insertBefore(this.sliderDom.imageContainer.firstChild, this.sliderDom.imageContainer.lastChild);
 		}
 		this.hideTitlecontainer();
 		this.positionNumber--;
-		this.selectDotsFromImage(this.sliderDom.imageContainer.children[this.positionNumber]);
+		this.resetSelected();
+		this.sliderDom.imageContainer.children[this.positionNumber].dataset.selected = "true";
+		this.selectDotsFromImage();
 		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
 		this.sliderDom.imageContainer.style.transitionProperty = "transform";
 		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
@@ -416,6 +428,7 @@ NoJQSlider.prototype = {
 		
 	},
 	hideTitlecontainer: function(event) {
+		console.log(this.positionNumber);
 		this.sliderDom.titleDescContainer.children[this.sliderDom.imageContainer.children[this.positionNumber].dataset.id].style.display = "";
 	},
 	resetDots : function(){
@@ -425,10 +438,18 @@ NoJQSlider.prototype = {
 			}
 		}
 	},
-	selectDotsFromImage : function(image){
+	selectDotsFromImage : function(){
+		var selected;
+		for(var i =0 ; i< this.sliderDom.imageContainer.children.length;i++){
+			if(this.sliderDom.imageContainer.children[i].dataset.selected == "true"){
+				selected = this.sliderDom.imageContainer.children[i];
+			}
+		}
+		//var selected = this.sliderDom.imageContainer.querySelector('[data-selected="true"');
+		this.resetDots();
+
 		for(var i =0; i < this.sliderDom.dotsContainer.children.length; i++){
-			if(this.sliderDom.dotsContainer.children[i].dataset.id == image.dataset.id){
-				this.resetDots();
+			if(this.sliderDom.dotsContainer.children[i].dataset.id == selected.dataset.id){
 				this.setActiveDots(this.sliderDom.dotsContainer.children[i]);
 			}
 		}
