@@ -104,9 +104,7 @@ NoJQSlider.prototype = {
 
 		this.imagesLoadedCount++;
 		if(this.imagesLoadedCount == this.totalImagesCount){
-
 			this.makeThemResponsive();
-			
 		}
 	},
 	resetActivePosition : function(){
@@ -300,6 +298,10 @@ NoJQSlider.prototype = {
 			this.sliderDom.imageContainer.children[i].dataset.selected = "";
 			this.sliderDom.imageContainer.children[i].dataset.id = i;
 			this.sliderDom.titleDescContainer.children[i].dataset.id = i;
+			this.sliderDom.dotsContainer.children[i].dataset.id = i;
+			if(i== 0){
+				this.setActiveDots(this.sliderDom.dotsContainer.children[i]);
+			}
 			this.sliderDom.imageContainer.children[i].children[0].addEventListener('load',function(){
 				this.checkIfImageLoaded();
 			}.bind(this));
@@ -334,6 +336,7 @@ NoJQSlider.prototype = {
 					if(this.positionNumber < this.sliderDom.imageContainer.children.length){
 						this.positionNumber++;
 					}
+					this.selectDotsFromImage(this.sliderDom.imageContainer.children[this.positionNumber]);
 					this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
 					this.sliderDom.imageContainer.style.transitionProperty = "transform";
 					this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
@@ -363,6 +366,7 @@ NoJQSlider.prototype = {
 		}
 		this.hideTitlecontainer();
 		this.positionNumber--;
+		this.selectDotsFromImage(this.sliderDom.imageContainer.children[this.positionNumber]);
 		this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
 		this.sliderDom.imageContainer.style.transitionProperty = "transform";
 		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
@@ -384,13 +388,10 @@ NoJQSlider.prototype = {
 					}.bind(this),this.timespeed);
 				}
 	},
-	startAnimation: function() {
+	startAnimation: function() { 	
 		this.interval = window.setInterval(
 			function(){
-
 				this.nextAnimation();
-				
-
 			}.bind(this),
 			this.timespeed*2);
 			this.animationStarted = true;
@@ -409,7 +410,52 @@ NoJQSlider.prototype = {
 	hideTitlecontainer: function(event) {
 		this.sliderDom.titleDescContainer.children[this.sliderDom.imageContainer.children[this.positionNumber].dataset.id].style.display = "";
 	},
+	resetDots : function(){
+		for(var i=0; i < this.sliderDom.dotsContainer.children.length; i++){
+			if(this.sliderDom.dotsContainer.children[i].classList.contains("active")){
+				this.sliderDom.dotsContainer.children[i].classList.remove("active");
+			}
+		}
+	},
+	selectDotsFromImage : function(image){
+		for(var i =0; i < this.sliderDom.dotsContainer.children.length; i++){
+			if(this.sliderDom.dotsContainer.children[i].dataset.id == image.dataset.id){
+				this.resetDots();
+				this.setActiveDots(this.sliderDom.dotsContainer.children[i]);
+			}
+		}
+	},
+	setActiveDots : function(dots){
+		dots.classList.add("active");
+	},
+	movebyDots : function(dot){
+		this.stopAnimation();
+		for(var i=0; i< this.sliderDom.imageContainer.children.length; i++){
+			if(this.sliderDom.imageContainer.children[i].dataset.id == dot.dataset.id){
+				this.hideTitlecontainer();
+				this.positionNumber = i;
+				this.sliderDom.imageContainer.style.transform = "translate3d("+((this.container.clientWidth * this.positionNumber) * -1)+"px,"+0+","+0+")"
+				this.sliderDom.imageContainer.style.transitionProperty = "transform";
+				this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
+				this.displayTitleContainter();
+			}
+		}
+		this.startAnimation();
+		//this.sliderDom.imageContainer.children
+	},
+	dotsClicked : function(e){
+		var target = e.target || e.srcElement;
+		this.resetDots();
+		this.setActiveDots(e.target);
+		this.movebyDots(e.target);
+
+	},
 	startBinding : function(){
+		for(var i = 0; i < this.sliderDom.dotsContainer.children.length; i++){	
+			this.sliderDom.dotsContainer.children[i].addEventListener("click", function(e){
+				this.dotsClicked(e);
+			}.bind(this));
+		}
 		this.sliderDom.nextItem.addEventListener('click', function(event){
 			this.nextAnimation(event);
 		}.bind(this));
