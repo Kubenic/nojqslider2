@@ -66,6 +66,8 @@ function NoJQSlider(container,options){
 	this.bindingStarted = false;
 	this.timespeed = options.timespeed || 5000;
 	this.positionNumber = 0;
+	this.responsive = options.responsive || false;
+	this.responsiveParameters = false;
 	this.latestCalledButton = Date.now();
 	this.minIntervalButton = Math.round((this.timespeed /100) * 80);
 
@@ -112,20 +114,56 @@ NoJQSlider.prototype = {
 		this.sliderDom.imageContainer.style.transitionProperty = "transform";
 		this.sliderDom.imageContainer.style.transitionDuration = (this.timespeed/1000)+"s";
 	},
-	makeThemResponsive : throttle(function(e){
-			/*if(typeof(e) !== "undefined"){
-				if(e.target){
-					this.container.style.width = "100%";	
+	setResponsiveParameters : function(){
+		if(!this.responsiveParameters){
+			this.responsiveParameters = new Array();
+			this.responsive.forEach(function(element){
+				for(var action in element.action){
+					if(action !== "undefined"){
+						if(this.responsiveParameters.indexOf(action) == -1){
+							this.responsiveParameters.push(action);
+						}
+					}
 				}
-			}*/
-			if(this.animationStarted){
-				this.stopAnimation();
-				
+			}.bind(this));
+		}
+
+
+	},
+	responsiveContains : function(element, action){
+		for(var actionName in element.action){
+			if(actionName == action){
+				return true;
 			}
-			//this.container.style.width = ( this.size.width || this.container.clientWidth ) +"px";
+		}
+		return false;
+	},
+	makeThemResponsive : throttle(function(e){
+			if(this.animationStarted){
+				this.stopAnimation();	
+			}
+			if(this.responsive){
+				if(!this.responsiveParameters){
+					this.setResponsiveParameters();
+				}
+			}
 			this.container.style.width = this.container.parentElement.clientWidth +"px";
 			this.sliderDom.imageContainer.style.width = this.container.clientWidth * this.sliderDom.imageContainer.children.length +"px";
-			this.container.style.height = (this.size.height || this.container.parentElement.clientHeight)+"px";
+
+			if(this.responsiveParameters.indexOf("height") !== -1){
+				var chosen;
+				this.responsive.forEach(function(element){
+					if(element.size < window.innerWidth){
+						if(this.responsiveContains(element,"height")){
+							chosen = element;
+						}
+					}
+				}.bind(this));
+
+				this.container.style.height = (chosen.action.height)+"px";
+			}else{
+				this.container.style.height = (this.size.height || this.container.parentElement.clientHeight)+"px";
+			}
 			this.container.style.overflow = "hidden";
 			
 			for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){

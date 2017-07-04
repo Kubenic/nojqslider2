@@ -24,7 +24,28 @@
 			},
 			size : {
 				height : 800
-			}
+			},
+			responsive : [
+				{
+					size : 0,
+					action : {
+						height:300
+					}
+				},
+				{
+					size : 768,
+					action : {
+						height:500
+					}
+				},
+				{
+					size : 992,
+					action : {
+						height:800
+					}
+				}
+			]
+
 		};
 
 		var slider = new NoJQSlider("#slider",options);
