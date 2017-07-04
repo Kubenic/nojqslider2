@@ -269,7 +269,9 @@ NoJQSlider.prototype = {
 			titleItem = this.sliderDom.titleItem.cloneNode(true),
 			descriptionItem = this.sliderDom.descriptionItem.cloneNode(true),
 			titleContainer = this.sliderDom.titleContainer.cloneNode(true),
-			dot = this.sliderDom.dotItem.cloneNode(true);
+			dot = this.sliderDom.dotItem.cloneNode(true),
+			play = this.sliderDom.play.cloneNode(true),
+			stop = this.sliderDom.stop.cloneNode(true);
 			
 			//on assigne les données au éléments
 			image.src = element[this.JSONDataModel.image];
@@ -290,6 +292,8 @@ NoJQSlider.prototype = {
 		this.sliderDom.controlsContainer.appendChild(this.sliderDom.prevItem);
 		this.sliderDom.controlsContainer.appendChild(this.sliderDom.nextItem);
 		this.sliderDom.controlsContainer.appendChild(this.sliderDom.dotsContainer);
+		this.sliderDom.controlsContainer.appendChild(this.sliderDom.play);
+		this.sliderDom.controlsContainer.appendChild(this.sliderDom.stop);
 		this.container.appendChild(this.sliderDom.imageContainer);
 		this.container.appendChild(this.sliderDom.titleDescContainer);
 		this.container.appendChild(this.sliderDom.controlsContainer);
@@ -385,12 +389,14 @@ NoJQSlider.prototype = {
 				}
 	},
 	startAnimation: function() {
+		if(this.interval) {
+			this.stopAnimation();
+		}
 		this.interval = window.setInterval(
 			function(){
 
 				this.nextAnimation();
-				
-
+			
 			}.bind(this),
 			this.timespeed*2);
 			this.animationStarted = true;
