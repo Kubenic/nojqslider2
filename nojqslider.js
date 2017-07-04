@@ -174,11 +174,14 @@ NoJQSlider.prototype = {
 				
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.width = this.container.clientWidth + "px";
 				this.sliderDom.imageContainer.children[i].firstElementChild.style.height = "auto";
+				this.sliderDom.imageContainer.children[i].firstElementChild.style.display = "block";
+
 				
 				//si image ne prend pas toute la hauteur du bloc : on change de méthode
 				if(this.sliderDom.imageContainer.children[i].firstElementChild.clientHeight < this.sliderDom.imageContainer.children[i].clientHeight){
-					this.sliderDom.imageContainer.children[i].firstElementChild.style.minHeight = this.container.clientHeight + "px";
-					this.sliderDom.imageContainer.children[i].firstElementChild.style.minWidth = "100%";
+					this.sliderDom.imageContainer.children[i].firstElementChild.style.width = "auto";
+					this.sliderDom.imageContainer.children[i].firstElementChild.style.height = this.container.clientHeight + "px";
+					//this.sliderDom.imageContainer.children[i].firstElementChild.style.minWidth = "100%";
 				}
 				
 				//centre l'image dans son parent
@@ -311,10 +314,6 @@ NoJQSlider.prototype = {
 			}.bind(this));
 		}
 		
-		//this.sliderDom.imageContainer.children[0].children[0].addEventListener('load',function(){this.makeThemResponsive()}.bind(this));
-		//this.makeThemResponsive();
-		//on lance la méthode de binding et d'animation
-		//this.startBinding();
 	},
 	nextAnimation: function(event) {
 		var now = Date.now();
