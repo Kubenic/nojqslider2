@@ -30,6 +30,59 @@ body, html{
 	background: rgba(0,0,0,0.8);
 	z-index: 2;
 }
+
+.nojqplayitem {
+	opacity: 0.5;
+	background: #eee;
+	z-index: 2;
+	position: relative;
+	width: 60px;
+	height: 40px;
+	float: right;
+	border-right: 1px solid;
+	cursor: pointer;
+}
+
+.nojqplayitem:before {
+    content: "\f04b";
+    font-family: FontAwesome;
+	font-style: normal;
+	font-weight: normal;
+	text-decoration: inherit;
+	color: #000;
+	font-size: 19px;
+	position: absolute;
+	top: 10px;
+	left: 21px;
+
+}
+
+.nojqpstopitem {
+	opacity: 0.5;
+	background: #eee;
+	z-index: 2;
+	position: relative;
+	width: 60px;
+	height: 40px;
+	float: right;
+	border-right: 1px solid;
+	cursor: pointer;
+}
+
+.nojqpstopitem:before {
+    content: "\f04d";
+    font-family: FontAwesome;
+	font-style: normal;
+	font-weight: normal;
+	text-decoration: inherit;
+	color: #000;
+	font-size: 19px;
+	position: absolute;
+	top: 10px;
+	left: 21px;
+}
+
+
 .nojqcontainer .nojqcontrolscontainer{
 	
 }
@@ -46,10 +99,42 @@ body, html{
 
 .nojqcontainer .nojqcontrolscontainer .nojqprevitem{
 	left: 0;
+	opacity:0.5;
+	cursor:pointer;
 }
+
+.nojqcontainer .nojqcontrolscontainer .nojqprevitem:before {
+    content: "\f104";
+    font-family: FontAwesome;
+	font-style: normal;
+	font-weight: normal;
+	text-decoration: inherit;
+	color: #000;
+	font-size: 31px;
+	position: absolute;
+	top: 9px;
+	left: 15px;
+}
+
 .nojqcontainer .nojqcontrolscontainer .nojqnextitem{
 	right: 0;
+	opacity:0.5;
+	cursor:pointer;
 }
+
+.nojqcontainer .nojqcontrolscontainer .nojqnextitem:before {
+    content: "\f105";
+    font-family: FontAwesome;
+	font-style: normal;
+	font-weight: normal;
+	text-decoration: inherit;
+	color: #000;
+	font-size: 31px;
+	position: absolute;
+	top: 9px;
+	left: 20px;
+}
+
 .nojqtitlecontainer {
 	display:none;
 	color:white;
