@@ -298,14 +298,15 @@ NoJQSlider.prototype = {
 		this.container.appendChild(this.sliderDom.imageContainer);
 		this.container.appendChild(this.sliderDom.titleDescContainer);
 		this.container.appendChild(this.sliderDom.controlsContainer);
-		this.sliderDom.titleDescContainer.children[0].style.display = "block";
+		this.sliderDom.titleDescContainer.children[0].classList.add("selected");
 		
 		//on lance le responsive des éléments
 		for(var i = 0; i < this.sliderDom.imageContainer.children.length; i++){
 			this.sliderDom.imageContainer.children[i].dataset.selected = "";
 			this.sliderDom.imageContainer.children[i].dataset.id = i;
 			this.sliderDom.titleDescContainer.children[i].dataset.id = i;
-			this.sliderDom.dotsContainer.children[i].dataset.id = i;
+			this.sliderDom.titleDescContainer.children[i].animationDuration = this.timespeed/2;
+;			this.sliderDom.dotsContainer.children[i].dataset.id = i;
 			if(i== 0){
 				this.setActiveDots(this.sliderDom.dotsContainer.children[i]);
 			}
@@ -421,14 +422,10 @@ NoJQSlider.prototype = {
 		this.animationStarted = false;
 	},
 	displayTitleContainter: function(event) {
-		window.setTimeout(function(){
-						this.sliderDom.titleDescContainer.children[this.sliderDom.imageContainer.children[this.positionNumber].dataset.id].style.display = "block";	
-					}.bind(this),1000);
-		
+		this.sliderDom.titleDescContainer.children[this.sliderDom.imageContainer.children[this.positionNumber].dataset.id].classList.add("selected");			
 	},
 	hideTitlecontainer: function(event) {
-		console.log(this.positionNumber);
-		this.sliderDom.titleDescContainer.children[this.sliderDom.imageContainer.children[this.positionNumber].dataset.id].style.display = "";
+		this.sliderDom.titleDescContainer.children[this.sliderDom.imageContainer.children[this.positionNumber].dataset.id].classList.remove("selected");
 	},
 	resetDots : function(){
 		for(var i=0; i < this.sliderDom.dotsContainer.children.length; i++){
